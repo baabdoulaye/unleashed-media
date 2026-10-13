@@ -2,12 +2,21 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
-export function BgVideo({ src, poster }: { src: string; poster: string | undefined }) {
+export function BgVideo({
+  src,
+  poster,
+  priority = false,
+}: {
+  src: string;
+  poster: string | undefined;
+  priority?: boolean;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [shouldLoad, setShouldLoad] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(priority);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    if (priority) return;
     const el = containerRef.current;
     if (!el) return;
 
@@ -24,32 +33,34 @@ export function BgVideo({ src, poster }: { src: string; poster: string | undefin
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [priority]);
 
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 -z-10 h-full w-full bg-background overflow-hidden"
+      className="absolute inset-0 -z-10 h-full w-full bg-background bg-cover bg-center overflow-hidden"
+      style={{
+        // Affiche l'image de poster immédiatement en fond du conteneur
+        backgroundImage: poster ? `url(${poster})` : undefined,
+      }}
     >
       {shouldLoad && (
         <video
           src={src}
-          poster={poster}
           autoPlay
           loop
           muted
           playsInline
-          preload="auto"
+          preload={priority ? "metadata" : "none"}
           aria-hidden="true"
-          // @ts-ignore (si TS râle sur l'attribut fetchPriority)
-          fetchPriority="high"
+          {...(priority ? { fetchPriority: "high" } : {})}
           onCanPlay={() => setIsReady(true)}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
             isReady ? "opacity-100" : "opacity-0"
           }`}
         />
       )}
-      {/* VOILE NOIR LÉGER (on remet de la lumière dans la vidéo) */}
+      {/* VOILE NOIR LÉGER */}
       <div className="absolute inset-0 bg-black/55 pointer-events-none" />
     </div>
   );
@@ -61,18 +72,20 @@ export function VideoSection({
   className = "",
   children,
   animate = true,
+  priority = false,
 }: {
   src: string;
   poster: string | undefined;
   className?: string;
   children: ReactNode;
   animate?: boolean;
+  priority?: boolean;
 }) {
   return (
     <section
       className={`relative isolate flex items-center overflow-hidden bg-background ${className}`}
     >
-      <BgVideo src={src} poster={poster} />
+      <BgVideo src={src} poster={poster} priority={priority} />
       {animate ? (
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -81,8 +94,6 @@ export function VideoSection({
           transition={{ duration: 0.5 }}
           className="mx-auto w-full max-w-7xl px-4 py-16"
         >
-          {/* MAGIE DU BACKDROP-FILTER ICI */}
-          {/* On ajoute un fond très légèrement translucide + un filtre pour éclaircir */}
           <div className="inline-block rounded-lg p-4 backdrop-blur-sm backdrop-brightness-125 bg-white/5">
             {children}
           </div>

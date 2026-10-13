@@ -1,3 +1,4 @@
+import powellSadImg from "@/assets/jamaica_relay.webp";
 export type Category =
   | "Diamond League"
   | "Biomécanique"
@@ -432,7 +433,7 @@ export const videoSections: Record<
     title: "Libérer la vitesse",
     text: "Dans les 0,5 premières secondes d'un 100m, tout se décide. Enquête au cœur du départ parfait.",
     bgVideoUrl: V1, // video_intro.mp4 (Introduction explosive en plein écran)
-    poster: "hero",
+    poster: powellSadImg,
   },
   biomeca: {
     id: "biomeca",

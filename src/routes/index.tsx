@@ -34,6 +34,7 @@ function Hero() {
       poster={vs.hero.poster}
       className="min-h-screen items-end"
       animate={false}
+      priority={true} // <--- C'est ici qu'il faut l'ajouter !
     >
       <Kicker>{vs.hero.kicker}</Kicker>
       <h1 className="mt-4 max-w-6xl text-6xl uppercase leading-[0.9] md:text-[9rem]">
